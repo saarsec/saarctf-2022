@@ -1,0 +1,26 @@
+// Copyright 2013 the V8 project authors. All rights reserved.
+// Copyright (C) 2005, 2006, 2007, 2008, 2009 Apple Inc. All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+// 1.  Redistributions of source code must retain the above copyright
+//     notice, this list of conditions and the following disclaimer.
+// 2.  Redistributions in binary form must reproduce the above copyright
+//     notice, this list of conditions and the following disclaimer in the
+//     documentation and/or other materials provided with the distribution.
+//
+// THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS'' AND ANY
+// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+// ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+
+var RESULT=[];function addReportExprJson(expr){RESULT.push(JSON.stringify(eval(expr)))}var object=new Object;object.valueOf=function(){return 1995};object.toString=function(){return"2222"};addReportExprJson('isNaN(new Date(""))',"true");var timeZoneOffset=Date.parse("Feb 1 1995")-Date.parse("Feb 1 1995 GMT");addReportExprJson("new Date(1995).getTime()","1995");addReportExprJson("new Date(object).getTime()","1995");addReportExprJson("new Date(new Date(1995)).getTime()","1995");addReportExprJson("new Date(new Date(1995).toString()).getTime()","1000");addReportExprJson("new Date(1995, 1).getTime() - timeZoneOffset","791596800000");addReportExprJson("new Date(1995, 1, 1).getTime() - timeZoneOffset","791596800000");addReportExprJson("new Date(1995, 1, 1, 1).getTime() - timeZoneOffset","791600400000");addReportExprJson("new Date(1995, 1, 1, 1, 1).getTime() - timeZoneOffset","791600460000");addReportExprJson("new Date(1995, 1, 1, 1, 1, 1).getTime() - timeZoneOffset","791600461000");addReportExprJson("new Date(1995, 1, 1, 1, 1, 1, 1).getTime() - timeZoneOffset","791600461001");addReportExprJson("new Date(1995, 1, 1, 1, 1, 1, 1, 1).getTime() - timeZoneOffset","791600461001");addReportExprJson("new Date(1995, 1, 1, 1, 1, 1, 1, 1, 1).getTime() - timeZoneOffset","791600461001");addReportExprJson("new Date(new Date(1995, 1)).getTime() - timeZoneOffset","791596800000");addReportExprJson("new Date(new Date(1995, 1, 1)).getTime() - timeZoneOffset","791596800000");addReportExprJson("new Date(new Date(1995, 1, 1, 1)).getTime() - timeZoneOffset","791600400000");addReportExprJson("new Date(new Date(1995, 1, 1, 1, 1)).getTime() - timeZoneOffset","791600460000");addReportExprJson("new Date(new Date(1995, 1, 1, 1, 1, 1)).getTime() - timeZoneOffset","791600461000");addReportExprJson("new Date(new Date(1995, 1, 1, 1, 1, 1, 1)).getTime() - timeZoneOffset","791600461001");addReportExprJson("new Date(new Date(1995, 1, 1, 1, 1, 1, 1, 1)).getTime() - timeZoneOffset","791600461001");addReportExprJson("new Date(new Date(1995, 1, 1, 1, 1, 1, 1, 1, 1)).getTime() - timeZoneOffset","791600461001");addReportExprJson("Number(new Date(new Date(Infinity, 1, 1, 1, 1, 1, 1, 1, 1)).getTime() - timeZoneOffset)","Number.NaN");addReportExprJson("Number(new Date(new Date(95, Infinity, 1, 1, 1, 1, 1, 1, 1)).getTime() - timeZoneOffset)","Number.NaN");addReportExprJson("Number(new Date(new Date(95, 1, Infinity, 1, 1, 1, 1, 1, 1)).getTime() - timeZoneOffset)","Number.NaN");addReportExprJson("Number(new Date(new Date(95, 1, 1, Infinity, 1, 1, 1, 1, 1)).getTime() - timeZoneOffset)","Number.NaN");addReportExprJson("Number(new Date(new Date(95, 1, 1, 1, Infinity, 1, 1, 1, 1)).getTime() - timeZoneOffset)","Number.NaN");addReportExprJson("Number(new Date(new Date(95, 1, 1, 1, 1, Infinity, 1, 1, 1)).getTime() - timeZoneOffset)","Number.NaN");addReportExprJson("Number(new Date(new Date(95, 1, 1, 1, 1, 1, Infinity, 1, 1)).getTime() - timeZoneOffset)","Number.NaN");addReportExprJson("Number(new Date(new Date(95, 1, 1, 1, 1, 1, 1, 1, Infinity)).getTime() - timeZoneOffset)","791600461001");var testStr="";var year={valueOf:function(){testStr+=1;return 2007}};var month={valueOf:function(){testStr+=2;return 2}};var date={valueOf:function(){testStr+=3;return 4}};var hours={valueOf:function(){testStr+=4;return 13}};var minutes={valueOf:function(){testStr+=5;return 50}};var seconds={valueOf:function(){testStr+=6;return 0}};var ms={valueOf:function(){testStr+=7;return 999}};testStr="";new Date(year,month,date,hours,minutes,seconds,ms);addReportExprJson("testStr",'"1234567"');testStr="";Date.UTC(year,month,date,hours,minutes,seconds,ms);addReportExprJson("testStr",'"1234567"');return RESULT

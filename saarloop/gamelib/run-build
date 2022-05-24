@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+# Build the service and store the result in /build_output
+
+set -eu
+
+SCRIPTPATH="$(cd "$(dirname "$BASH_SOURCE")" && pwd)"
+
+python3 -u $SCRIPTPATH/ci/build-in-docker.py "$@"

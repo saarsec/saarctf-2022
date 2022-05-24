@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+set -eu
+
+SCRIPTPATH="$(cd "$(dirname "$BASH_SOURCE")" && pwd)"
+export SERVICENAME=$(cat "$SCRIPTPATH/../servicename" | tr '[:upper:]' '[:lower:]')
+
+
+# Build/update service if necessary
+if [ -d "$SCRIPTPATH/../build_output" ]; then
+  # update scripts, but not actual build results
+  cp "$SCRIPTPATH"/../*.sh "$SCRIPTPATH/../servicename" "$SCRIPTPATH/ci/buildscripts/publish-network-infos.sh" "$SCRIPTPATH/../build_output/"
+  echo "[.] Service is already built"
+else
+  echo "[.] Need to build service"
+  "$SCRIPTPATH/run-build"
+fi
+
+# Build the base image (if necessary)
+python3 -u $SCRIPTPATH/ci/build-in-docker.py build-ci-base
+
+# This must be a file otherwise docker-compose will produce "funny" results
+touch "$SCRIPTPATH/../docker-container-infos.txt"
+
+# Install a docker container
+cd "$SCRIPTPATH/.."
+docker build -t "saarsec/$SERVICENAME" -f "$SCRIPTPATH/ci/InstallLocal.Dockerfile" .
+
+echo "[*] Created docker image \"saarsec/$SERVICENAME:latest\" - use \"docker-compose up\" to run."
+echo "    After startup you can find its IP in ./docker-container-infos.txt"

@@ -1,0 +1,10 @@
+/.idea
+/.nobadge
+/public/
+/build_output/
+/docker-container-infos.txt
+**/__pycache__/
+/service/app/migrations/*py
+/service/data/loops
+/service/db.sqlite3
+/service/engine/*

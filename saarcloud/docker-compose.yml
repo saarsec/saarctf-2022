@@ -1,0 +1,12 @@
+---
+
+version: "2"
+
+services:
+  service:
+    image: "saarsec/saarcloud"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"

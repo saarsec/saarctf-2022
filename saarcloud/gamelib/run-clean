@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -eu
+
+SCRIPTPATH="$(cd "$(dirname "$BASH_SOURCE")" && pwd)"
+
+# Remove build output
+rm -rf "$SCRIPTPATH/../build_output"
+# remove all dead images
+docker system prune

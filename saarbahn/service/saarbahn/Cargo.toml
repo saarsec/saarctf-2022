@@ -1,0 +1,24 @@
+[package]
+name = "saarbahn"
+version = "0.0.0"
+edition = "2018"
+
+[dependencies]
+rocket = { version = "0.5.0-rc.1", features = ["secrets", "tls"] }
+diesel = "1.4.8"
+sha2 = "0.10.2"
+hex-literal = "0.3.4"
+qr_code = "1.1.0"
+serde = { version = "1.0.104", features = ["derive"] }
+serde_json = "1.0.48"
+hmac = "0.12.1"
+base64 = "0.13.0"
+rand = "0.8.5"
+
+[dependencies.rocket_dyn_templates]
+path = "dyn_templates"
+features = ["handlebars"]
+
+[dependencies.rocket_sync_db_pools]
+version = "0.1.0-rc.1"
+features = ["diesel_postgres_pool"]

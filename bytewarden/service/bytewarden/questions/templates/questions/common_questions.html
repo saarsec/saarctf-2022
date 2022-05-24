@@ -1,0 +1,26 @@
+{% extends "users/base.html" %}
+{% block title %}Common Questions{% endblock %}
+
+{% block content %}
+
+<p>Question n°1 from King Arthur: </p>
+    <p>What is the airspeed velocity of an unladen swallow?</p>
+    <p>- What do you mean? African or European swallow?</p>
+<br>
+
+<p>Question n°66 from Obi: </p>
+    <p>Hello there!</p>
+    <p>- General Kenobi!</p>
+<br>
+
+
+{% for question in questions %}
+    <p>Question n°{{ question.question_num }} from {{ question.user.username }}: </p>
+    <p id="{{question.question_num}}_{{ question.user.username }}_question"></p>
+    <script type="text/javascript">decrypt_id("{{ question.question_text }}", "{{ question.user.username }}", "{{ question.question_num }}_{{ question.user.username }}_question")</script>
+    
+    <span>- </span><span id="{{ question.question_num }}_{{ question.user.username }}_answer"></span>
+    <script type="text/javascript">decrypt_id("{{ question.answer_text }}", "{{ question.user.username }}", "{{ question.question_num }}_{{ question.user.username }}_answer")</script>
+    <br><br><br>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,12 @@
+---
+
+version: "2"
+
+services:
+  service:
+    image: "saarsec/saarloop"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "11025:11025"

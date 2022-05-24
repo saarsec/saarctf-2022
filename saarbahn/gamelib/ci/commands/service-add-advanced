@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+# USAGE: service-add 'command' 'working directory' 'description' <<EOF
+# additional config lines here
+# EOF
+
+set -eu
+
+SERVICESUFFIX="${SERVICESUFFIX:-}"
+
+cat << EOF > /etc/systemd/system/$SERVICENAME$SERVICESUFFIX.service
+[Unit]
+Description=$3
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=$1
+WorkingDirectory=$2
+User=$SERVICENAME
+Group=$SERVICENAME
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+EOF
+
+cat - >> /etc/systemd/system/$SERVICENAME$SERVICESUFFIX.service
+
+cat << EOF >> /etc/systemd/system/$SERVICENAME$SERVICESUFFIX.service
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl enable $SERVICENAME$SERVICESUFFIX

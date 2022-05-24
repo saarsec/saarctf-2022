@@ -1,0 +1,1 @@
+["\"(function f1() { for (var j in []) {}  })\"", "\"(function () { for (var j = 1; j < 10; ++j) {}  })\"", "\"(function () { for (j = 1;j < 10; ++j) {}  })\"", "\"(function () { for (var j;;) {}  })\"", "true"]

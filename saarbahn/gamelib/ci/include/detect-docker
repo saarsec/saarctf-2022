@@ -1,0 +1,4 @@
+#!/bin/bash
+function detect-docker {
+  grep -q docker /proc/1/cgroup || [ -f /.dockerenv ] || grep -q 'overlay / overlay.*docker' /proc/mounts
+}

@@ -1,0 +1,142 @@
+#image: debian:bullseye
+image: saarsec/saarctf-ci-base:latest
+
+variables:
+  FF_NETWORK_PER_BUILD: 1
+  # Initialize submodules
+  GIT_SUBMODULE_STRATEGY: recursive
+  # workaround for runner bug, might be omitted in the future:
+  GIT_STRATEGY: clone
+
+  # Ensure the docker uses utf-8
+  LC_ALL: C.UTF-8
+  LANG: C.UTF-8
+
+  # Enable caching for npm and pip
+  NPM_CONFIG_CACHE: $CI_PROJECT_DIR/.cache/npm
+  PIP_CACHE_DIR: $CI_PROJECT_DIR/.cache/pip
+
+  PWNLIB_NOTERM: 1
+  # Enable this variable to print pwntools log output
+  # DEBUG: 1
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .cache
+
+stages:
+  - build
+  - install
+  - test
+  - deploy
+
+
+
+build:
+  stage: build
+  before_script:
+    - export PATH=$HOME/.local/bin:$PATH
+    - ./gamelib/ci/buildscripts/configure_caching.sh
+  script:
+    - ./build.sh
+    - "touch .success"
+  after_script:
+    - ./gamelib/ci/buildscripts/update-badge.sh
+  artifacts:
+    expire_in: 1 hour
+    when: always
+    paths:
+      - public/ci-build.svg
+      - service
+
+
+#build-base-image:
+#  stage: build
+#  when: manual
+#  image:
+#    name: gcr.io/kaniko-project/executor:debug
+#    entrypoint: [""]
+#  script:
+#    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+#    - /kaniko/executor --context $CI_PROJECT_DIR/gamelib/ci/docker-saarctf-ci-base --dockerfile $CI_PROJECT_DIR/gamelib/ci/docker-saarctf-ci-base/Dockerfile --destination $CI_REGISTRY_IMAGE:base
+
+
+install:
+  stage: install
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    # - sed -i "s|FROM saarsec/saarctf-ci-base|FROM $CI_REGISTRY_IMAGE:base|" gamelib/ci/InstallCI.Dockerfile
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/gamelib/ci/InstallCI.Dockerfile --destination $CI_REGISTRY_IMAGE:pipe-$CI_PIPELINE_ID
+    - "touch public/ci-install.svg"
+  after_script:
+    - "test -f public/ci-install.svg || touch public/ci-install.fail"
+  dependencies:
+    - build
+  artifacts:
+    expire_in: 1 hour
+    when: always
+    paths:
+      - public/ci-install.svg
+      - public/ci-install.fail
+
+
+checkers:
+  services:
+    - name: $CI_REGISTRY_IMAGE:pipe-$CI_PIPELINE_ID
+      alias: servicehost
+  before_script:
+    - export PATH=$HOME/.local/bin:$PATH
+    - ./gamelib/ci/buildscripts/configure_caching.sh
+    - ./gamelib/ci/buildscripts/install-script-dependencies.sh
+    - ./dependencies.sh
+  script:
+    - "python3 -u gamelib/ci/testscripts/test-checkerscript.py servicehost"
+    - "touch .success"
+  after_script:
+    - ./gamelib/ci/buildscripts/update-badge.sh
+  artifacts:
+    expire_in: 1 hour
+    when: always
+    paths:
+      - public/ci-checkers.svg
+
+
+exploits:
+  services:
+    - name: $CI_REGISTRY_IMAGE:pipe-$CI_PIPELINE_ID
+      alias: servicehost
+  before_script:
+    - export PATH=$HOME/.local/bin:$PATH
+    - ./gamelib/ci/buildscripts/configure_caching.sh
+    - ./gamelib/ci/buildscripts/install-script-dependencies.sh
+    - ./dependencies.sh
+  script:
+    - "python3 -u gamelib/ci/testscripts/test-exploits.py servicehost"
+    - "touch .success"
+  after_script:
+    - ./gamelib/ci/buildscripts/update-badge.sh
+  artifacts:
+    expire_in: 1 hour
+    when: always
+    paths:
+      - public/ci-exploits.svg
+
+
+pages:
+  stage: deploy
+  when: always
+  before_script:
+    - ./gamelib/ci/buildscripts/configure_caching.sh
+  script:
+    - "ls -la public"
+    - ./gamelib/ci/buildscripts/update-badge-default.sh
+    - "ls -la public"
+  artifacts:
+    paths:
+    - public
+  only:
+  - master

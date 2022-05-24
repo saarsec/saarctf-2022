@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+# USAGE:
+# gamelib/run-checkers
+# gamelib/run-checkers <target-ip>
+
+set -eu
+
+SCRIPTPATH="$(cd "$(dirname "$BASH_SOURCE")" && pwd)"
+
+# Determine target IP
+if [ $# -eq 0 ]; then
+  TARGET=$(egrep -o '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' "$SCRIPTPATH/../docker-container-infos.txt" | grep -v "127.0" | head -1)
+  echo "Testing against $TARGET ... (check docker container is running)"
+else
+  TARGET=$1
+  shift
+  echo "Testing against $TARGET"
+fi
+
+cd "$SCRIPTPATH/.."
+python3 -u "$SCRIPTPATH/ci/testscripts/test-checkerscript.py" "$TARGET" "$@"

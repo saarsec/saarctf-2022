@@ -1,0 +1,87 @@
+{% extends "users/base.html" %}
+{% block title %}Questions{% endblock %}
+
+{% block content %}
+
+<div class="my-3">
+    <legend>
+        <strong>View Security Questions</strong>
+    </legend>
+    <p>View 1 of your 10 Security Questions <br>
+    <i> You can only view one Question at the time (for security reasons). </i></p>
+    {% if question %}
+        <p>Question n°{{ question.question_num }}: </p><p id="show_question"></p>
+
+        <script type="text/javascript">
+            decrypt_id("{{ question.question_text }}", "{{ user.username }}", "show_question")
+        </script>
+        
+        <span>- </span><span id="show_answer"></span><br><br>
+        <script type="text/javascript">
+            decrypt_id("{{ question.answer_text }}", "{{ user.username }}", "show_answer")
+        </script>
+        
+        <span>Shared: </span>
+        {% if question.is_shared %}
+            <span>Yes</span>
+        {% else %}
+            <span>No</span>
+        {% endif %}
+        <br><br>
+    {% endif %}
+
+    <form action="{% url 'questions:questions' %}" method="GET">
+        <div class="form-group row">
+            <label class="col-form-label col-auto" for="num">See Question n°: </label>
+            <select class="form-select mr-3 h-25 mt-2" name="num">
+                {% for i in question_range %}
+                    <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+            </select>
+        </div>
+            <button class="btn btn-sm btn-primary" type="submit">View</button>
+    </form>
+
+    <br>
+</div>
+
+
+<!-- Edit Question -->
+<div>
+    <legend>
+        <strong>Edit/Add Security Question</strong>
+    </legend><br>
+
+    <form action="{% url 'questions:questions' %}" method="post" name="edit_form">
+
+        <div class="form-group row">
+            <label class="col-form-label col-auto" for="num">Question n°: </label>
+            <select class="form-select h-25 mt-2" name="num">
+                {% for i in question_range %}
+                    <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+                <!-- Add Question -->
+                <option value="{{ question_range|length|add:'1' }}">{{ question_range|length|add:'1' }}</option> 
+            </select>
+        </div>
+
+        <input class="form-control mb-3 col-3" type="text" name="new_question" placeholder="Your new Question" required>
+        <input class="form-control mb-3 col-3" type="text" name="new_answer" placeholder="Your new Answer" required>
+
+        <div class="form-group row ml-4">
+            <input class="form-check-input" type="checkbox" name="is_shared">
+            <label class="form-check-label" for="is_shared"> Shared</label>
+        </div>
+
+        <button class="btn btn-md btn-primary col-auto" type="button" onclick="submit_form('edit_form', '{{ user.username }}')">Edit</button>
+
+    </form>
+</div>
+
+<div id="empty-vertical-space" class="my-5"></div>
+
+
+<a href="{% url 'questions:reset' %}">  
+    <button class="btn btn-outline-danger" type="submit" >Reset All Questions and Answers (Cannot be undone!)</button>
+</a>
+{% endblock %}

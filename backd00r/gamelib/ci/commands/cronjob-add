@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+# USAGE: cronjob-add '*/6 * * * * find $INSTALL_DIR/data -mmin +45 -type f -delete'
+
+set -eu
+
+SCRIPTPATH="$(cd "$(dirname "$BASH_SOURCE")" && pwd)"
+source "${SCRIPTPATH}/../include/detect-docker"
+
+if detect-docker; then
+  echo "[NOTICE] There is no crontab inside docker, we'll skip crontabs in testing environments. Crontab would be:"
+  echo "  user = $SERVICENAME"
+  echo "  home = $INSTALL_DIR"
+  echo "  $1"
+  exit 0
+fi
+
+( sudo -u $SERVICENAME crontab -l || true; cat - <<EOF ) | sudo -u $SERVICENAME crontab -
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+SHELL=/bin/sh
+HOME=$INSTALL_DIR
+
+$1
+
+EOF

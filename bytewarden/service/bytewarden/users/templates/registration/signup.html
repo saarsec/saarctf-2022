@@ -1,0 +1,35 @@
+{% extends "users/base.html" %}
+{% block title %}Register Account{% endblock %}
+
+{% load static %}
+{% block content %}
+
+
+ {% if form.errors %}
+    {% for field in form %}
+        {% for error in field.errors %}
+            <div class="alert alert-danger">
+                <strong>{{ error|escape }}</strong>
+            </div>
+        {% endfor %}
+    {% endfor %}
+    {% for error in form.non_field_errors %}
+        <div class="alert alert-danger">
+            <strong>{{ error|escape }}</strong>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="d-flex justify-content-center text-center align-items-center" style="height:500px;">
+    <form method="post">
+        <img src="{% static 'img/logo-round.png' %}" width="72" height="72"> 
+        <h1 class="h3 my-3 font-weight-normal">Please Sign up</h1>
+
+            <input class="form-control mb-3" type="text" name="username" maxlength="150" autofocus required id="id_username" placeholder="Username">
+
+            <input class="form-control mb-3" type="password" name="password1" required id="id_password1" placeholder="Password">    
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign up</button>
+    </form>
+</div>
+
+{% endblock %}

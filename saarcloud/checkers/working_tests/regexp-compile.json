@@ -1,0 +1,1 @@
+["\"/a/i\"", "false", "false", "false", "false", "\"/a/\"", "\"/b/g\"", "\"/c/\"", "true", "true", "\"/c/i\"", "TypeError: Cannot supply flags when constructing one RegExp from another", "\"/c/i\"", "SyntaxError: Invalid regular expression: /+/: Nothing to repeat", "\"/(?:)/\"", "\"/null/\"", "\"/(?:)/\"", "\"/z/\"", "0", "1"]

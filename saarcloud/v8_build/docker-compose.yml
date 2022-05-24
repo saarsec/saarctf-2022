@@ -1,0 +1,11 @@
+---
+
+version: "2.2"
+services:
+  v8builder:
+    build: .
+    container_name: v8builder
+    volumes:
+      - "./tools:/tools"
+      - "./v8:/v8"
+      - "./code:/code"

@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+import sys
+import re
+import argparse
+from typing import List
+
+
+def preformat_content(content: List[str]):
+    leading_spaces = min((len(line) - len(line.lstrip()) for line in content if line), default=0)
+    content = [line[leading_spaces:].rstrip() for line in content]
+    while len(content) > 0 and content[0].strip() == '': content = content[1:]
+    while len(content) > 0 and content[-1].strip() == '': content = content[:-1]
+    return content
+
+
+def add_whitespace(content: List[str], ws: str):
+    return [ws+line if line else '' for line in content]
+
+
+def find_insert_pos(config: List[str], port=80) -> int:
+    server_block_open = False
+    is_correct_server = False
+    for i, line in enumerate(config):
+        if line.lstrip().startswith('#'): continue
+        if re.match(r'\s*server\s*\{\s*', line):
+            server_block_open = True
+        elif re.match(r'\s*listen\s+.*?PORT[\s;].*'.replace('PORT', str(port)), line):
+            is_correct_server = True
+        elif re.match(r'}\s*', line):
+            if server_block_open and is_correct_server:
+                return i
+            server_block_open = False
+            is_correct_server = False
+    raise Exception('Could not find pos')
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Add a location{ } block to an existing nginx config')
+    parser.add_argument('config', nargs='?', type=str, help='configuration file', default='/etc/nginx/sites-available/default')
+    parser.add_argument('--port', type=int, help='Port to add this location to', default=80)
+    parser.add_argument('--dry', action='store_const', help='Do not write resulting file', const=True, default=False)
+    args = parser.parse_args()
+    content = preformat_content(list(sys.stdin))
+    with open(args.config, 'r') as f:
+        config = f.read().split('\n')
+    pos = find_insert_pos(config, port=args.port)
+    config = config[:pos] + [''] + add_whitespace(content, '\t') + config[pos:]
+    if args.dry:
+        print('\n'.join(config))
+    else:
+        with open(args.config, 'w') as f:
+            f.write('\n'.join(config))
+
+
+if __name__ == '__main__':
+    main()

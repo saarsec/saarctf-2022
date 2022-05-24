@@ -1,0 +1,19 @@
+[default]
+secret_key = "itlYmFR2vYKrOmFhupMIn/hyB6lYCCTXz4yaQX89XVg="
+template_dir = "templates"
+# Docker 
+# address = "172.20.0.2"
+address = "0.0.0.0"
+# Local 
+# address = "127.0.0.1"
+read_timeout = 5
+
+[global.tls]
+certs = "./cert.pem"
+key = "./key.pem"
+
+[global.databases.my_pg_db]
+# Docker 
+url = "postgres://saarbahn:password@localhost:5432/saarbahn"
+# Local
+# url = "postgres://saarbahn@localhost:5432/saarbahn"

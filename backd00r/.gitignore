@@ -1,0 +1,10 @@
+cmake-build-*
+/.idea
+/.nobadge
+/public/
+/build_output/
+/docker-container-infos.txt
+/checkers/gamelib
+/checkers/.idea
+/checkers/__pycache__
+/exploits/__pycache__

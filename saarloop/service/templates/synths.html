@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="mb-4 container-fluid">
+        <button type="button" class="btn btn-primary" data-bs-toggle="collapse"
+                data-bs-target="#newSynth">Create new synth...
+        </button>
+    </div>
+    <div class="p-5 mb-4 container-fluid collapse bg-dark text-white rounded-3" id="newSynth">
+
+        <form id="synth_form" action="{% url 'new_synth' %}" method="post">
+            <input id="synth" name="synth" type="hidden">
+            <div class="mb-3">
+                <label for="synth_name" class="form-label">Name</label>
+                <input type="text" class="form-control" id="synth_name" name="synth_name"
+                       aria-describedby="synth_name_help">
+                <div id="synth_name_help" class="form-text">Name your creation</div>
+            </div>
+            <div id="synth_canvas_div" style="width: 100%">
+                <canvas id="synth_canvas" width="800" height="400"></canvas>
+            </div>
+            <div id="oscs" class="mb-3">
+                Oscillators:
+            </div>
+            <hr>
+            <div class="mb-3">
+                <button id="new_osc" type="button" class="btn btn-primary">Add Oscillator</button>
+            </div>
+            <button id="form_submit" type="submit" class="btn btn-primary">Create Synth</button>
+        </form>
+        <script>
+            let synth = {};
+            let nOscs = 0;
+
+            let canvasDiv = document.getElementById('synth_canvas_div');
+            let canvas = document.getElementById('synth_canvas');
+
+            function update_synth() {
+                synth.oscs = [];
+
+                for (let i = 0; i < nOscs; i++) {
+                    let oscSelect = document.getElementById(`osc${i}_select`);
+                    let oscVol = document.getElementById(`osc${i}_vol`);
+                    let oscDetune = document.getElementById(`osc${i}_freq`);
+                    let oscPhase = document.getElementById(`osc${i}_phase`);
+                    synth.oscs.push({
+                        "type": oscSelect.value,
+                        "vol": parseInt(oscVol.value) / 100,
+                        "phase": (parseInt(oscPhase.value) / 100) * Math.PI * 2.0,
+                        "fmult": (x => (x>0)?(x+1):(1/(1-x)))(parseInt(oscDetune.value)/1200)
+                    });
+
+                }
+
+                document.getElementById("synth").value = JSON.stringify(synth);
+            }
+
+            Math.fmod = function (a, b) {
+                return Number((a - (Math.floor(a / b) * b)).toPrecision(8));
+            };
+
+            let baseOscs = {
+                'SINE': Math.sin,
+                'SAW': x => Math.fmod(x / Math.PI, 2) - 1,
+                'SQUARE': x => Math.fmod(x / Math.PI, 2) < 1 ? 1 : -1
+            }
+
+            function plot_graph() {
+
+                function f(x) {
+                    return synth.oscs.reduce((y, osc) => y + osc.vol * baseOscs[osc.type](x * osc.fmult + osc.phase), 0);
+                }
+
+                canvas.width = canvasDiv.clientWidth;
+                let w = canvas.width;
+                let h = canvas.height;
+                let ctx = canvas.getContext("2d");
+                let py0 = h / 2 - (h / 2) * f(0);
+                ctx.clearRect(0, 0, w, h);
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = '#fd7e14';
+                ctx.beginPath();
+                ctx.moveTo(0, py0);
+                for (let px = 0; px < w; px++) {
+                    let x = (px / w) * 2 * Math.PI;
+                    let y = f(x);
+                    let py = h / 2 - (h / 2) * y;
+                    ctx.lineTo(px, py);
+                }
+                ctx.stroke();
+            }
+
+            function updateGraph() {
+                update_synth();
+                plot_graph();
+            }
+
+            document.getElementById("new_osc").onclick = function () {
+                let oscDiv = document.getElementById("oscs");
+                let newOscId = nOscs++;
+                let newElem = document.createElement("div");
+                newElem.classList.add("mb-3");
+                newElem.innerHTML = `Osc ${newOscId}
+                    <div class="mb-3 row">
+                        <div class="col">
+                            <select id="osc${newOscId}_select" class="form-select" oninput="updateGraph();">
+                                <option value="SINE">Sine Wave</option>
+                                <option value="SAW">Saw Wave</option>
+                                <option value="SQUARE">Square Wave</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label for="osc${newOscId}_vol" class="form-label">Volume:</label> <span id="osc${newOscId}_vol_val">50</span> %
+                            <input type="range" class="form-range" id="osc${newOscId}_vol" min="-100" max="100" value="50"
+                               oninput="document.getElementById('osc${newOscId}_vol_val').innerText=this.value; updateGraph();">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <div class="col">
+                            <label for="osc${newOscId}_freq" class="form-label">Detune:</label> <span id="osc${newOscId}_freq_val">1</span>x
+                            <input type="range" class="form-range" id="osc${newOscId}_freq" min="-8400" max="8400" value=""
+                               oninput="document.getElementById('osc${newOscId}_freq_val').innerText=((this.value>+0)?Number(1+(this.value/1200)).toFixed(3):('1/'+Number(1+(this.value/-1200)).toFixed(3))); updateGraph();">
+                        </div>
+                        <div class="col">
+                            <label for="osc${newOscId}_phase" class="form-label">Phase offset:</label> <span id="osc${newOscId}_phase_val">0</span> %
+                            <input type="range" class="form-range" id="osc${newOscId}_phase" min="0" max="100" value="0"
+                               oninput="document.getElementById('osc${newOscId}_phase_val').innerText=this.value; updateGraph();">
+                        </div>
+                    </div>`;
+                oscDiv.appendChild(document.createElement("hr"));
+                oscDiv.appendChild(newElem);
+                updateGraph();
+            }
+
+            document.getElementById("form_submit").onclick = function () {
+                update_synth();
+            }
+        </script>
+    </div>
+    <hr>
+    <div class="mb-4 container-fluid">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+            {% for synth in synths %}
+                <div class="col">
+                    <div class="card shadow-sm">
+                        <audio controls preload="none"
+                               onplay="Array.from(document.getElementsByTagName('audio')).forEach(e => {if (e!==this){e.pause();e.currentTime=0}})">
+                            <source src="{% url 'synth' 'USER' synth %}" type="audio/wav">
+                        </audio>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <p class="card-text">{{ synth }}</p>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

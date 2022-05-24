@@ -1,0 +1,9 @@
+/.idea
+/.nobadge
+/public/
+/build_output/
+/docker-container-infos.txt
+
+__pycache__/
+service/bytewarden/bytewarden/static/crypto.py
+service/bytewarden/db.sqlite3

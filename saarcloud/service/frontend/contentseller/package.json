@@ -1,0 +1,20 @@
+{
+  "name": "contentseller",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "./build.sh",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "gulp": "^4.0.2",
+    "html-minifier": "^4.0.0",
+    "purgecss": "^4.0.3"
+  },
+  "dependencies": {
+    "fomantic-ui": "^2.8.8"
+  }
+}

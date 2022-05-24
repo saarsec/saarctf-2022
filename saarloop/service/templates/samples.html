@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+        <div class="mb-4 container-fluid">
+        <form method="post" action="{% url 'new_sample' %}" enctype="multipart/form-data">
+            <div class="mb-3">
+                <input type="file" class="form-control" id="sample_file" name="sample_file" accept=".wav,audio/wav,audio/wave,audio/x-pn-wav,audio/x-wav" required>
+                <label class="form-check-label" for="sample_file">WAVE, 8-bit, 11025Hz</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Upload new sample</button>
+        </form>
+    </div>
+    <hr>
+    <div class="mb-4 container-fluid">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+            {% for sample in samples %}
+                <div class="col">
+                    <div class="card shadow-sm">
+                        <audio controls preload="none"
+                               onplay="Array.from(document.getElementsByTagName('audio')).forEach(e => {if (e!==this){e.pause();e.currentTime=0}})">
+                            <source src="{% url 'sample' 'USER' sample %}" type="audio/wav">
+                        </audio>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <p class="card-text">{{ sample }}</p>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

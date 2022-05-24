@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="mb-4 container-fluid">
+        <button type="button" class="btn btn-primary" data-bs-toggle="collapse"
+                data-bs-target="#newLoop">Create new loop...
+        </button>
+    </div>
+    <div class="p-5 mb-4 container-fluid collapse bg-dark text-white rounded-3" id="newLoop">
+        <script src="{% static "js/webaudio-pianoroll.js" %}"></script>
+
+        <form id="loop_form" action="{% url 'create_loop' %}" method="post">
+            <input id="loop" name="loop" type="hidden">
+            <div class="mb-3">
+                <label for="loop_name" class="form-label">Name</label>
+                <input type="text" class="form-control" id="loop_name" name="loop_name"
+                       aria-describedby="loop_name_help">
+                <div id="loop_name_help" class="form-text">Name your creation</div>
+            </div>
+            <div class="mb-3 row">
+                <div class="col">
+                    <label for="loop_length" class="form-label">Length:</label> <span id="loop_len_val">4</span> bar(s)
+                    <input type="range" class="form-range" id="loop_length" min="1" max="16" value="4"
+                           oninput="document.getElementById('loop_len_val').innerText=this.value">
+                </div>
+                <div class="col">
+                    <label for="loop_bpm" class="form-label">Tempo:</label> <span id="loop_bpm_val">135</span> BPM
+                    <input type="range" class="form-range" id="loop_bpm" min="60" max="240" value="135"
+                           oninput="document.getElementById('loop_bpm_val').innerText=this.value">
+                </div>
+            </div>
+            <div id="tracks" class="mb-3">
+                Tracks:
+            </div>
+            <hr>
+            <div class="mb-3 row">
+                <div class="col-2">
+                    <button id="new_track" type="button" class="btn btn-success">Add Track</button>
+                </div>
+                <div class="col-10">
+                    <select id="new_track_type" class="form-select">
+                        <option value="SAMPLE">Sample Track</option>
+                        <option value="SYNTH">Synth Track</option>
+                    </select>
+                </div>
+            </div>
+            <hr>
+            <div class="mb-3 row">
+                <div class="col-2">
+                    <button id="form_update" class="btn btn-outline-warning">Preview Loop</button>
+                </div>
+
+                <audio id="loop_preview" controls loop preload="none" class="col"
+                       onplay="Array.from(document.getElementsByTagName('audio')).forEach(e => {if (e!==this){e.pause();e.currentTime=0}})">
+                </audio>
+            </div>
+            <hr>
+            <div class="mb-3">
+                <button id="form_submit" type="submit" class="btn btn-primary">Create Loop</button>
+            </div>
+        </form>
+        <script>
+            let loop = {};
+            let tracks = [];
+
+            function update_loop() {
+                loop.bpm = parseInt(document.getElementById("loop_bpm").value);
+                loop.length = parseInt(document.getElementById("loop_length").value) * 4;
+                loop.tracks = [];
+
+                for (let i = 0; i < tracks.length; i++) {
+                    let trackElem = document.getElementById(`track${i}`);
+                    let trackSelect = document.getElementById(`track${i}_select`);
+                    let trackVol = document.getElementById(`track${i}_vol`);
+                    let trackType = tracks[i];
+                    let trackSelectType = trackSelect.value.split('/')[0];
+                    let trackSelectValue = trackSelect.value.split('/')[1];
+                    switch (trackType) {
+                        case "SAMPLE":
+                            loop.tracks.push({
+                                "type": trackType + "_" + trackSelectType,
+                                "id": trackSelectValue,
+                                "vol": parseInt(trackVol.value) / 100,
+                                "notes": trackElem.sequence.map(n => n.t / (trackElem.timebase / 4))
+                            });
+                            break;
+                        case "SYNTH":
+                            let trackAttack = document.getElementById(`track${i}_attack`);
+                            let trackDecay = document.getElementById(`track${i}_decay`);
+                            let trackSustain = document.getElementById(`track${i}_sustain`);
+                            let trackRelease = document.getElementById(`track${i}_release`);
+                            loop.tracks.push({
+                                "type": trackType + "_" + trackSelectType,
+                                "id": trackSelectValue,
+                                "vol": parseInt(trackVol.value) / 100,
+                                "env": {
+                                    "a": parseInt(trackAttack.value),
+                                    "d": parseInt(trackDecay.value),
+                                    "s": parseInt(trackSustain.value) / 100,
+                                    "r": parseInt(trackRelease.value)
+                                },
+                                "notes": trackElem.sequence.map(n => ({
+                                        "t": n.t / (trackElem.timebase / 4),
+                                        "p": n.n,
+                                        "d": n.g / (trackElem.timebase / 4)
+                                    })
+                                )
+                            });
+                            break;
+                    }
+                }
+                let old = document.getElementById("loop").value;
+                document.getElementById("loop").value = JSON.stringify(loop);
+                return document.getElementById("loop").value != old;
+            }
+
+            document.getElementById("new_track").onclick = function () {
+                let trackDiv = document.getElementById("tracks");
+                let newTrackId = tracks.length;
+                let newTrackType = document.getElementById("new_track_type").value;
+                tracks.push(newTrackType);
+                let newElem = document.createElement("div");
+                newElem.classList.add("mb-3");
+                switch (newTrackType) {
+                    case "SAMPLE":
+                        newElem.innerHTML = `Track ${newTrackId}
+                            <div class="mb-3 row">
+                                <div class="col-4">
+                                    <select id="track${newTrackId}_select" class="form-select">
+                                        {% for sample in samples %}
+                                            <option value="{{ sample.0 }}/{{ sample.1 }}">[{{ sample.0 }}]
+                            {{ sample.1 }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-2">
+                                    <button type="button" class="btn btn-outline-warning" onclick="event.preventDefault(); let audio=new Audio('/sample/'+document.getElementById('track${newTrackId}_select').value);audio.play();">Preview Sample</button>
+                                </div>
+                                <div class="col-6">
+                                    <label for="track${newTrackId}_vol" class="form-label">Volume:</label> <span id="track${newTrackId}_vol_val">50</span> %
+                                    <input type="range" class="form-range" id="track${newTrackId}_vol" min="0" max="100" value="50"
+                                       oninput="document.getElementById('track${newTrackId}_vol_val').innerText=this.value">
+                                </div>
+                            </div>
+                            <webaudio-pianoroll id="track${newTrackId}" width="1024" yrange="1" xrange="64" height="48" xscroll="1" markstart="-1000" markend="-1000" cursor="-1000" yruler="0" kbwidth="0" collt="#67a" coldk="#459" grid="1" snap="1" colgrid="#99f" colnote="#8af" colnotesel="#bdf" colrulerbg="#87f" colrulerfg="#fff" editmode="dragmono"></webaudio-pianoroll>
+                        </div>`;
+                        break;
+                    case "SYNTH":
+                        newElem.innerHTML = `Track ${newTrackId}
+                            <div class="mb-3 row">
+                                <div class="col-4">
+                                    <select id="track${newTrackId}_select" class="form-select">
+                                        {% for synth in synths %}
+                                            <option value="{{ synth.0 }}/{{ synth.1 }}">[{{ synth.0 }}] {{ synth.1 }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-2">
+                                    <button type="button" class="btn btn-outline-warning" onclick="event.preventDefault(); let audio=new Audio('/synth/'+document.getElementById('track${newTrackId}_select').value);audio.play();">Preview Synth</button>
+                                </div>
+                                <div class="col-6">
+                                    <label for="track${newTrackId}_vol" class="form-label">Volume:</label> <span id="track${newTrackId}_vol_val">50</span> %
+                                    <input type="range" class="form-range" id="track${newTrackId}_vol" min="0" max="100" value="50"
+                                       oninput="document.getElementById('track${newTrackId}_vol_val').innerText=this.value">
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <div class="col">
+                                    <label for="track${newTrackId}_attack" class="form-label">Attack:</label> <span id="track${newTrackId}_attack_val">10</span> ms
+                                    <input type="range" class="form-range" id="track${newTrackId}_attack" min="0" max="4096" value="110"
+                                       oninput="document.getElementById('track${newTrackId}_attack_val').innerText=Math.round(1000*this.value/11025)">
+                                </div>
+                                <div class="col">
+                                    <label for="track${newTrackId}_decay" class="form-label">Decay:</label> <span id="track${newTrackId}_decay_val">10</span> ms
+                                    <input type="range" class="form-range" id="track${newTrackId}_decay" min="0" max="4096" value="110"
+                                       oninput="document.getElementById('track${newTrackId}_decay_val').innerText=Math.round(1000*this.value/11025)">
+                                </div>
+                                <div class="col">
+                                    <label for="track${newTrackId}_sustain" class="form-label">Sustain:</label> <span id="track${newTrackId}_sustain_val">50</span> %
+                                    <input type="range" class="form-range" id="track${newTrackId}_sustain" min="0" max="100" value="50"
+                                       oninput="document.getElementById('track${newTrackId}_sustain_val').innerText=this.value">
+                                </div>
+                                <div class="col">
+                                    <label for="track${newTrackId}_release" class="form-label">Release:</label> <span id="track${newTrackId}_release_val">10</span> ms
+                                    <input type="range" class="form-range" id="track${newTrackId}_release" min="0" max="4096" value="110"
+                                       oninput="document.getElementById('track${newTrackId}_release_val').innerText=Math.round(1000*this.value/11025)">
+                                </div>
+                            </div>
+                            <webaudio-pianoroll id="track${newTrackId}" width="1024" yscroll="1" xrange="64" xscroll="1" markstart="-1000" markend="-1000" cursor="-1000" collt="#67a" coldk="#459" grid="1" snap="1" colgrid="#99f" colnote="#8af" colnotesel="#bdf" colrulerbg="#87f" colrulerfg="#fff" editmode="dragpoly"></webaudio-pianoroll>`;
+                        break;
+                }
+                trackDiv.appendChild(document.createElement("hr"));
+                trackDiv.appendChild(newElem);
+            }
+
+            document.getElementById("form_submit").onclick = function () {
+                update_loop();
+            }
+
+            document.getElementById("form_update").onclick = function (ev) {
+                ev.preventDefault();
+                if (update_loop()) {
+
+                    let formdata = new FormData();
+                    formdata.append("loop", document.getElementById("loop").value);
+                    formdata.append("loop_name", document.getElementById("loop_name").value);
+
+                    console.log(formdata);
+
+                    let xhr = new XMLHttpRequest();
+                    xhr.open('POST', "{% url 'preview_loop' %}");
+                    xhr.responseType = 'blob';
+                    xhr.onload = function () {
+                        document.getElementById('loop_preview').src = URL.createObjectURL(this.response);
+                        document.getElementById('loop_preview').play();
+                    }
+                    xhr.send(formdata);
+                } else {
+                    document.getElementById('loop_preview').play();
+                }
+            }
+
+        </script>
+    </div>
+    <hr>
+    <div class="mb-4 container-fluid">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+            {% for loop in loops %}
+                <div class="col">
+                    <div class="card shadow-sm">
+                        <audio controls loop preload="none"
+                               onplay="Array.from(document.getElementsByTagName('audio')).forEach(e => {if (e!==this){e.pause();e.currentTime=0}})">
+                            <source src="{% url 'download' loop.id %}" type="audio/wav">
+                        </audio>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-baseline">
+                                <p class="card-text">{{ loop.name }}</p>
+                                <small class="text-muted">{{ loop.bpm }} BPM {{ loop.length }} beats</small>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <small class="text-muted">{{ loop.votes }} {% if loop.votes == 1 %}
+                                        like {% else %}likes{% endif %}</small>
+                                </div>
+                                <div>
+                                    {% if not loop.public %}
+                                        <button type="button"
+                                                id="publishButton{{ forloop.counter }}"
+                                                class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                            private
+                                        </button>
+                                        <ul class="dropdown-menu"
+                                            aria-labelledby="publishButton{{ forloop.counter }}">
+                                            <li>
+                                                <a class="dropdown-item"
+                                                   href="{% url 'publish' loop.id %}">Publish!</a>
+                                            </li>
+                                        </ul>
+                                    {% else %}
+                                        <button type="button" class="btn btn-success disabled">
+                                            public
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

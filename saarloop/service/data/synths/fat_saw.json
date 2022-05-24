@@ -1,0 +1,14 @@
+{"oscs":
+ [
+  {"type": "SAW",
+   "vol": 0.5,
+   "phase": 0.0,
+   "fmult": 1.0
+  },
+  {"type": "SAW",
+   "vol": 0.5,
+   "phase": 0.3,
+   "fmult": 1.01
+  }
+ ]
+}

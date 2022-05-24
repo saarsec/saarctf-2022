@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# USAGE: make-append-only $INSTALL_DIR/<path>
+
+set -eu
+
+mkdir -p "$1"
+
+echo "$1 $1 fuse.bindfs force-user=root,perms=u=rwD:g=r:dg=rwx:o=D" >> /etc/fstab
+chmod u=rwx,g=rwx,o=t "$1"

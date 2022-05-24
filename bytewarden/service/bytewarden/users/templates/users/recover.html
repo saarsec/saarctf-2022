@@ -1,0 +1,73 @@
+{% extends "users/base.html" %}
+{% block title %}Recover Account{% endblock %}
+
+{% load static %}
+{% block content %}
+<script type="text/javascript" src="{% static 'crypto.js' %}"></script>
+        
+{% if form.errors %}
+    {% for field in form %}
+        {% for error in field.errors %}
+            <div class="alert alert-danger">
+                <strong>{{ error|escape }}</strong>
+            </div>
+        {% endfor %}
+    {% endfor %}
+    {% for error in form.non_field_errors %}
+        <div class="alert alert-danger">
+            <strong>{{ error|escape }}</strong>
+        </div>
+    {% endfor %}
+{% endif %}
+
+
+    <legend><strong>Forgot Password</strong></legend>
+    <p>
+        <i>Enter your Username and the Security Question you want to answer.</i><br><br>
+    </p>
+
+    {% if question %}
+        <form action="{% url 'recover' %}" method="post" name="recover_form">
+     
+            <div class="form-group row">
+                <label class="col-form-label col-sm-2" for="username">Username: </label>
+                <input class="form-control form-control-plaintext col-sm-2" type="text" name="username" value="{{ username }}" readonly>
+            </div><br>
+
+            <input class="form-control" type="hidden" name="num" value="{{ question.question_num  }}">
+            
+            <span>Question n°{{ question.question_num }}: </span><span id="show_question"></span><br><br>
+            <script type="text/javascript">decrypt_id("{{ question.question_text }}", "{{ username }}", "show_question")</script>
+            <br>
+
+            <div class="form-group row">
+                <label class="col-form-label col-sm-2" for="answer">Answer: </label>
+                <input class="form-control col-sm-4"  type="text" name="answer" id="answer" placeholder="The Answer to the Question" required>
+            </div>
+
+            <button class="btn btn-md btn-primary col-auto" type="button" onclick="submit_form('recover_form', '{{ username }}')">Submit</button>
+        </form>
+
+    {% else %}
+        <form action="{% url 'recover' %}" method="get" name="recover_form">
+ 
+            <div class="form-group row">
+                <label class="col-form-label col-sm-2" for="username">Username: </label>
+                <input class="form-control col-sm-2" type="text" name="username" placeholder="Your Username">
+            </div>
+
+            <div class="form-group row">
+                <label class="col-form-label col-sm-2" for="num">Security Question n°: </label>
+                <select class="form-select h-25 mt-2" name="num">
+                    {% for i in '0123456789'|make_list %}
+                        <option value="{{ forloop.counter }}">{{ forloop.counter }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <br><br>
+            <button class="btn btn-md btn-primary col-auto" type="button" onclick="submit_form('recover_form', '{{ username }}')">Submit</button>
+        </form>
+    {% endif %}
+
+{% endblock %}

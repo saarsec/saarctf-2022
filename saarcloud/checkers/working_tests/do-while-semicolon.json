@@ -1,0 +1,1 @@
+["\"(function f1() {\\n    do {} while(0);\\n})\"", "\"(function f2() {\\n    do {} while(0)\\n})\"", "\"(function f3() {\\n    do {} while(0)   ;\\n})\"", "\"(function f4() {\\n    do {} while(0)  /*empty*/ ;\\n})\""]

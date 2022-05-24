@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/docs/4.0/assets/img/favicons/favicon.ico">
+
+    <title>Saarbahn</title>
+
+    <!-- Bootstrap core CSS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.0-beta1/js/bootstrap.min.js" integrity="sha512-Hqe3s+yLpqaBbXM6VA0cnj/T56ii5YjNrMT9v+us11Q81L0wzUG0jEMNECtugqNu2Uq5MSttCg0p4KK0kCPVaQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.0-beta1/css/bootstrap.min.css" integrity="sha512-o/MhoRPVLExxZjCFVBsm17Pkztkzmh7Dp8k7/3JrtNCHh0AQ489kwpfA3dPSHzKDe8YCuEhxXq3Y71eb/o6amg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Custom styles for this template -->
+    <style>
+       html,
+body {
+  height: 100%;
+}
+
+body {
+  display: -ms-flexbox;
+  display: -webkit-box;
+  display: flex;
+  -ms-flex-align: center;
+  -ms-flex-pack: center;
+  -webkit-box-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  justify-content: center;
+  padding-top: 40px;
+  padding-bottom: 40px;
+  background-color: #f5f5f5;
+  background-image: url('https://i.imgflip.com/3nt6ne.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+  .stop-sylt {
+    background-image: url('https://www.shz.de/img/lokales/crop37375642/6644662256-cv16_9-h495/das-netz-ist-voller-memes-als-reaktion-auf-den-bef-202205101323-full.jpg');
+  }
+.stop-brebach {
+    background-image: url('https://upload.wikimedia.org/wikipedia/commons/f/f4/BrebachBahnsteig.png');
+  }
+.stop-dudweiler {
+    background-image: url('https://previews.123rf.com/images/tupungato/tupungato2001/tupungato200100213/137600324-railway-logic-funny-meme-for-social-media-sharing-public-transportation-problems-joke-.jpg');
+  }
+.stop-ludwigskirche {
+    background-image: url('https://media.makeameme.org/created/this-is-me-5ac4a8.jpg'); 
+  }
+.stop-hauptbahnhof {
+    background-image: url('http://images2.memedroid.com/images/UPLOADED49/523f2671e6681.jpeg');
+  }
+.stop-kleinblittersdorf {
+    background-image: url('https://i.pinimg.com/originals/8a/d8/4d/8ad84d8f18a36c542b9d50eb2919e75c.jpg');
+  }
+.stop-riegelsberg {
+    background-image: url('https://i.imgflip.com/221ikt.jpg');
+  }
+.stop-roemerkastell {
+    background-image: url('https://i.pinimg.com/736x/aa/be/06/aabe06ef256102573babb5bce8652e70--so-funny-funny-shit.jpg');
+  }
+.stop-universitaet {
+    background-image: url('https://ahseeit.com/german/king-include/uploads/2021/06/140379416_436290974232119_8644688877334471419_n-3542171263.jpg');
+  }
+.stop-johanneskirche {
+    background-image: url('https://web.archive.org/web/20220519101146im_/https://www.sol.de/wp-content/uploads/legacy/58/573512-601x400.jpg');
+  }
+
+
+.form-signin {
+  width: 100%;
+  max-width: 330px;
+  padding: 15px;
+  margin: 0 auto;
+}
+.form-signin .checkbox {
+  font-weight: 400;
+}
+.form-signin .form-control {
+  position: relative;
+  box-sizing: border-box;
+  height: auto;
+  padding: 10px;
+  font-size: 16px;
+}
+.form-signin .form-control:focus {
+  z-index: 2;
+}
+.form-signin input[type="email"] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.form-signin input[type="password"] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+    </style>
+  </head>
+
+  <body class="text-center stop-{{ name }}">
+    <div class="card">
+      <form class="form-signin" method="post" accept-charset="utf-8">
+      <img class="mb-4" src="https://getbootstrap.com/docs/4.0/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
+                    <h1 class="h3 mb-3 font-weight-normal">
+                        {{ name }}</h1>
+                    Ratings: <br>
+                    {{#each comments}}
+                        <div class="alert alert-info">{{this}}</div>
+                    {{/each}}
+                    <br>
+                    <form method="post" />
+                    <textarea id="comment" name="comment"></textarea>
+                    <button class="btn btn-lg btn-primary btn-block" type="submit" value="Comment">Comment</button>
+                    </form>
+    </div>
+  </body>
+</html>
+
+

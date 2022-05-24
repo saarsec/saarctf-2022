@@ -1,0 +1,9 @@
+/*.o
+/*.ko
+/*.cmd
+/modules.order
+/Module.symvers
+/*.mod
+/*.mod.c
+/cmake-build-*
+/.idea

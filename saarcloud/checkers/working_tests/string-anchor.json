@@ -1,0 +1,1 @@
+["\"<a name=\\\"b\\\">_</a>\"", "\"<a name=\\\"b\\\"><</a>\"", "\"<a name=\\\"42\\\">_</a>\"", "\"<a name=\\\"&quot;\\\">_</a>\"", "\"<a name=\\\"&quot; href=&quot;http://www.evil.com\\\">_</a>\"", "\"<a name=\\\"42\\\">42</a>\"", "TypeError: String.prototype.anchor called on null or undefined", "TypeError: String.prototype.anchor called on null or undefined", "1"]

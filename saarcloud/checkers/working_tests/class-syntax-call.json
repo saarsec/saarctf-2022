@@ -1,0 +1,1 @@
+["{}", "TypeError: Class constructor A cannot be invoked without 'new'", "{}", "TypeError: Class constructor B cannot be invoked without 'new'", "{}", "TypeError: Class constructors cannot be invoked without 'new'", "TypeError: Super constructor null of anonymous class is not a constructor", "TypeError: Class constructors cannot be invoked without 'new'"]

@@ -1,0 +1,13 @@
+---
+
+version: "2"
+
+services:
+  service:
+    image: "saarsec/backd00r"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # service listens for ICMP packages
+    # either use "network_mode: host" and try on localhost, or remove it and use the container's internal ip
+    network_mode: host

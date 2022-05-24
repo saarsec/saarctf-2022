@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+    <title>yourlongusername - Your digital store</title>
+
+    <link rel="stylesheet" type="text/css" href="semantic/semantic.min.css">
+
+    <style>
+        .masthead.segment {
+            min-height: 500px;
+            padding: 2em 0em;
+        }
+
+        .masthead h2.ui.header {
+            margin-top: 2em;
+            margin-bottom: 0em;
+        }
+
+        .masthead h1.ui.header {
+            font-size: 4em;
+            font-weight: normal;
+        }
+
+        .masthead h2 {
+            font-size: 1.7em;
+            font-weight: normal;
+            margin-bottom: 2em;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .ui.vertical.stripe.segment {
+            margin-top: 2em;
+            padding-bottom: 2em;
+        }
+    </style>
+
+</head>
+
+<body class="">
+<div class="">
+    <div class="ui inverted vertical masthead center aligned segment">
+        <div class="ui text container">
+            <h2 class="ui inverted header">yourlongusername</h2>
+            <h1 class="ui inverted header">Your digital store</h1>
+            <h2>We sell everything you need!</h2>
+            <a class="ui huge primary button" href="#free">Try out now!</a>
+            <br/>
+            <br/>
+            <p><small>powered by SaarCloud - the leading CDN</small></p>
+        </div>
+    </div>
+</div>
+
+<div class="ui vertical stripe segment" data-type="goods" data-ext="jpg">
+    <div class="ui container">
+        <h3>Pictures!</h3>
+        <p>A digital saarland picture, for just $5!</p>
+        <form class="ui form">
+            <div class="inline fields">
+                <div class="twelve wide field">
+                    <label for="product1">Code</label>
+                    <input type="text" id="product1"/>
+                </div>
+                <div class="four wide field">
+                    <button class="ui primary button">Retrieve!</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="ui container hidden goods-container">
+        <div class="ui placeholder segment">
+            <div class="ui centered header">
+                <div class="ui active inline loader"></div>&nbsp;&nbsp;
+                Retrieving your goods ...
+            </div>
+            <div class="ui centered red header hidden">invalid code or wrong file type</div>
+            <iframe class="hidden" width="100%"></iframe>
+        </div>
+    </div>
+</div>
+
+<div class="ui vertical stripe segment" data-type="goods" data-ext="txt">
+    <div class="ui container">
+        <h3>Texts!</h3>
+        <p>A digital novel, for just $15!</p>
+        <form class="ui form">
+            <div class="inline fields">
+                <div class="twelve wide field">
+                    <label for="product2">Code</label>
+                    <input type="text" id="product2"/>
+                </div>
+                <div class="four wide field">
+                    <button class="ui primary button">Retrieve!</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="ui container hidden goods-container">
+        <div class="ui placeholder segment">
+            <div class="ui centered header">
+                <div class="ui active inline loader"></div>&nbsp;&nbsp;
+                Retrieving your goods ...
+            </div>
+            <div class="ui centered red header hidden">invalid code or wrong file type</div>
+            <iframe class="hidden" width="100%"></iframe>
+        </div>
+    </div>
+</div>
+
+<div class="ui vertical stripe segment" data-type="goods" data-ext="mp3">
+    <div class="ui container">
+        <h3>Music!</h3>
+        <p>A digital music track, for just $50!</p>
+        <form class="ui form">
+            <div class="inline fields">
+                <div class="twelve wide field">
+                    <label for="product3">Code</label>
+                    <input type="text" id="product3"/>
+                </div>
+                <div class="four wide field">
+                    <button class="ui primary button">Retrieve!</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="ui container hidden goods-container">
+        <div class="ui placeholder segment">
+            <div class="ui centered header">
+                <div class="ui active inline loader"></div>&nbsp;&nbsp;
+                Retrieving your goods ...
+            </div>
+            <div class="ui centered red header hidden">invalid code or wrong file type</div>
+            <iframe class="hidden" width="100%"></iframe>
+        </div>
+    </div>
+</div>
+
+<div class="ui vertical stripe segment" id="free">
+    <div class="ui container">
+        <h3>Try out for free!</h3>
+        <p>With the code <code>ABCDEFGH</code>, you earn the first item for free!</p>
+        <p>For more codes, please contact our <a href="about:blank">sales department</a>.</p>
+    </div>
+</div>
+
+<div class="ui vertical stripe segment">
+    <div class="ui container">
+        <h3>Copyright Statement!</h3>
+        <p>
+            Be warned that all our digital goods are heavily copyright protected.
+            Any attempt of illegal downloads will be logged.
+            Our security guards monitor download logs in real time, and destroy your house if illegal downloads occur.
+        </p>
+        <p>Our downloads are protected by SaarCloud security features.</p>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    document.querySelectorAll('[data-type=goods]').forEach(element => {
+        let container = element.getElementsByClassName('goods-container')[0];
+        let loading = container.children[0].children[0];
+        let errormsg = container.children[0].children[1];
+        let iframe = container.children[0].children[2];
+
+        element.getElementsByTagName('form')[0].addEventListener('submit', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            let code = element.getElementsByTagName('input')[0].value;
+            let url = '/paid_content_' + code + '.' + element.dataset['ext'];
+
+            container.classList.remove('hidden');
+            loading.classList.remove('hidden');
+            errormsg.classList.add('hidden');
+            iframe.classList.add('hidden');
+            iframe.onload = () => {
+                loading.classList.add('hidden');
+                iframe.classList.remove('hidden');
+                container.children[0].classList.remove('placeholder');
+            };
+            let onerror = () => {
+                loading.classList.add('hidden');
+                errormsg.classList.remove('hidden');
+            };
+            iframe.onerror = onerror;
+
+            fetch(url, {'method': 'HEAD'}).then(result => {
+                if (result.ok) {
+                    setTimeout(() => {
+                        iframe.src = url;
+                    }, 1000);
+                } else {
+                    onerror();
+                }
+            }, onerror);
+
+            return false;
+        });
+    });
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+    <title>yourlongusername - Issue Tracker</title>
+
+    <link rel="stylesheet" type="text/css" href="semantic/semantic.min.css">
+
+    <style>
+        .masthead.segment {
+            min-height: 300px;
+            padding: 2em 0em;
+        }
+
+        .masthead h2.ui.header {
+            margin-top: 1.5em;
+            margin-bottom: 0em;
+        }
+
+        .masthead h1.ui.header {
+            font-size: 4em;
+            font-weight: normal;
+        }
+
+        .masthead h2 {
+            font-size: 1.7em;
+            font-weight: normal;
+            margin-bottom: 2em;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .ui.vertical.stripe.segment {
+            margin-top: 2em;
+            padding-bottom: 2em;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div class="">
+    <div class="ui inverted vertical masthead center aligned segment">
+        <div class="ui text container">
+            <h2 class="ui inverted header">yourlongusername</h2>
+            <h1 class="ui inverted header">Issue Tracker</h1>
+            <br/>
+            <p><small>powered by SaarCloud - the leading backend hosting company in your region</small></p>
+        </div>
+    </div>
+</div>
+<br/>
+
+
+
+<div class="page ui vertical stripe segment" data-page="index">
+    <div class="ui container">
+        <h3>Current Issues</h3>
+        <div class="ui active inline loader" data-target="issue-list"></div>
+    </div>
+</div>
+
+<div class="page ui vertical stripe segment" data-page="index">
+    <div class="ui container">
+        <h3>Create new issue</h3>
+        <form class="ui form" data-target="issue">
+            <div class="field">
+                <label>Issue Title</label>
+                <input type="text" name="title" placeholder="First Name" required>
+            </div>
+            <div class="field">
+                <label>Text</label>
+                <textarea name="text" placeholder="Please describe the issue as good as possible ..." required></textarea>
+            </div>
+            <div class="field">
+                <label>Your Name</label>
+                <input type="text" name="author" placeholder="Author name" required>
+            </div>
+            <div class="field">
+                <div class="ui checkbox">
+                    <input type="checkbox" tabindex="0" name="secret" id="secret">
+                    <label for="secret">This issue is security-critical (keep secret)</label>
+                </div>
+            </div>
+            <button class="ui button primary" type="submit">Create Issue</button>
+        </form>
+    </div>
+</div>
+
+
+<div class="page ui vertical stripe segment" data-page="issue">
+    <div class="ui container">
+        <h3>Issue <span data-value="id-short"></span>: <span data-value="title"></span></h3>
+        <div class="ui active inline loader" data-value="loader"></div>
+        <h5>by <span data-value="author"></span></h5>
+        <div class="ui message orange" data-value="secret">This issue is secret!</div>
+        <pre class="ui segment" data-value="text"></pre>
+    </div>
+
+    <br/><br/><br/>
+    <div class="ui container">
+        <div class="ui comments" data-target="comments">
+            <h3 class="ui dividing header">Comments</h3>
+        </div>
+        <div class="ui active inline loader" data-value="loader"></div>
+        <div class="ui comments">
+            <form class="ui reply form" id="reply" data-target="comment">
+                <div class="field">
+                    <input type="text" name="author" placeholder="Your name" required>
+                </div>
+                <div class="field">
+                    <textarea name="text" placeholder="Your comment" required></textarea>
+                </div>
+                <button class="ui primary submit button" type="submit">Add Reply</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script type="text/javascript">
+    function createElement(html) {
+        let template = document.createElement('template');
+        template.innerHTML = html.trim();
+        return template.content.firstChild;
+    }
+
+    function renderIssueList(issues) {
+        let list = createElement('<div class="ui relaxed divided list" />');
+        for (let issue of issues) {
+            let item = createElement(`<div class="item">
+                <div class="content">
+                    <a class="header"></a>
+                    <div class="description"></div>
+                </div>
+             </div>`);
+            item.querySelector('.header').textContent = '#' + issue.id.substr(0, 6) + ' '+ issue.title;
+            item.querySelector('a').href = '?issue=' + issue.id;
+            item.querySelector('.description').textContent = issue.created + ' | by ' + issue.author;
+            list.appendChild(item);
+        }
+        return list;
+    }
+
+    function renderComment(comment) {
+        let item = createElement(`
+            <div class="comment">
+                <div class="content">
+                    <span class="author"></span>
+                    <div class="metadata"><span class="date"></span></div>
+                    <div class="text"></div>
+                    <div class="actions"><a class="reply" href="#reply">Reply</a></div>
+                </div>
+            </div>
+        `);
+        item.querySelector('.author').textContent = comment.author;
+        item.querySelector('.text').textContent = comment.text;
+        item.querySelector('.date').textContent = comment.created;
+        return item;
+    }
+
+    // Select current page
+    let currentPage = 'index';
+    let issueId = '';
+    if (location.search.startsWith('?issue=')) {
+        currentPage = 'issue';
+        issueId = location.search.substr(7);
+    }
+    document.querySelectorAll('.page').forEach(page => {
+        if (page.dataset.page !== currentPage)
+            page.classList.add('hidden');
+    });
+
+    if (currentPage === 'index') {
+        // fetch issues
+        fetch('/api/issues').then(async response => {
+           let issues = await response.json();
+           document.querySelector('[data-target=issue-list]').replaceWith(renderIssueList(issues));
+        });
+    }
+
+    if (currentPage === 'issue') {
+        fetch('/api/issues/'+issueId).then(async response => {
+            let {issue, comments} = await response.json();
+            document.querySelectorAll('[data-value=loader]').forEach(e => e.classList.add('hidden'));
+            document.querySelectorAll('[data-value=title]').forEach(e => e.textContent = issue.title);
+            document.querySelectorAll('[data-value=text]').forEach(e => e.textContent = issue.text);
+            document.querySelectorAll('[data-value=author]').forEach(e => e.textContent = issue.author);
+            document.querySelectorAll('[data-value=id-short]').forEach(e => e.textContent = '#' + issue.id.substr(0, 6));
+            document.querySelectorAll('[data-value=secret]').forEach(e => e.classList.toggle('hidden', issue.public == "1"));
+            for (let comment of comments) {
+                document.querySelector('[data-target=comments]').appendChild(renderComment(comment));
+            }
+        });
+    }
+
+    // post new issue
+    document.querySelector('form[data-target=issue]').addEventListener('submit', async (event) => {
+        event.stopPropagation();
+        event.preventDefault();
+        let data = {
+            title: event.target.querySelector('input[name=title]').value,
+            text: event.target.querySelector('textarea[name=text]').value,
+            author: event.target.querySelector('input[name=author]').value,
+            public: !event.target.querySelector('input[name=secret]').checked,
+        };
+        let result = await (await fetch('/api/issues', {method: 'POST', body: JSON.stringify(data)})).json();
+        location.search = '?issue=' + result.id;
+    });
+
+    // post new comment
+    document.querySelector('form[data-target=comment]').addEventListener('submit', async (event) => {
+        event.stopPropagation();
+        event.preventDefault();
+        let data = {
+            issue_id: issueId,
+            text: event.target.querySelector('textarea[name=text]').value,
+            author: event.target.querySelector('input[name=author]').value
+        };
+        let result = await (await fetch('/api/comments', {method: 'POST', body: JSON.stringify(data)})).json();
+        location.reload();
+    });
+
+</script>
+
+</body>
+
+</html>

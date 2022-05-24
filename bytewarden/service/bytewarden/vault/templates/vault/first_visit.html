@@ -1,0 +1,13 @@
+{% extends "users/base.html" %}
+{% block title %}Two Factor Authentication Code{% endblock %}
+
+{% block content %}
+<p>Two Factor Authentication is used to additionally secure your passwords.</p>
+<p> Your new 2FA code is: <strong>{{ user.code }}</strong><br>
+    This code is required for access to your passwords.<br>
+<strong>Save</strong> it, as it will only be shown <strong>once</strong>!</p>
+
+<a href="{% url 'vault:2fa' %}">  
+    <button class="btn btn-outline-danger" >I understand</button>
+</a>
+{% endblock %}

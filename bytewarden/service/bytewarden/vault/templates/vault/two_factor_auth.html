@@ -1,0 +1,23 @@
+{% extends "users/base.html" %}
+{% block title %}Two Factor Authentication{% endblock %}
+
+
+{% block content %}
+
+<legend>
+    <strong>Two Factor Authentication</strong>
+</legend><br>
+
+
+<form action="{% url 'vault:2fa' %}" method="post" name="2fa_form">
+
+    <label for="2fa_code">Enter your 2FA code: </label><br><br>
+    <input type="text" name="2fa_code" placeholder="Code" minlength="{{ 2fa_length }}" maxlength="{{ 2fa_length }}" required>
+    <input type="text" name="pow" value="" hidden>
+    <input type="text" name="prefix" value="{{ pow_prefix }}" hidden>
+    <input type="text" name="difficulty" value="{{ pow_difficulty }}" hidden>
+    <button class="btn btn-md btn-primary col-auto" type="button" onclick="compute_pow('2fa_form')">Submit</button>
+
+</form>
+<i>After submitting, please allow up to 5 seconds for browser verification...</i>
+{% endblock %}

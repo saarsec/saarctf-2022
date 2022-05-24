@@ -1,0 +1,1 @@
+[true, "TypeError: Class constructor A cannot be invoked without 'new'", true, "\"A\"", true, "TypeError: Class constructor B cannot be invoked without 'new'", "\"B\"", true, true, "[1,2]"]

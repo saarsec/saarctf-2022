@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+    <div class="p-5 mb-4 bg-dark text-white rounded-3">
+        <h1>Welcome to saarloop</h1>
+        <p>
+            your favourite place for the newest and hottest in repetitive music!
+        </p>
+        <style>
+            .marquee {
+                animation: marquee 40s linear infinite;
+            }
+
+            @keyframes marquee {
+                0% {
+                    transform: translateX(100%);
+                }
+                100% {
+                    transform: translateX(-100%);
+                }
+            }
+        </style>
+        <div style="overflow: hidden">
+            <img class="marquee" src="{% static "img/unz_unz.png" %}">
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+            {% for loop in loops %}
+                <div class="col">
+                    <div class="card shadow-sm">
+                        <audio controls loop preload="none"
+                               onplay="Array.from(document.getElementsByTagName('audio')).forEach(e => {if (e!==this){e.pause();e.currentTime=0}})">
+                            <source src="{% url 'download' loop.id %}" type="audio/wav">
+                        </audio>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-baseline">
+                                <p class="card-text">{{ loop.name }}<br> <i class="text-muted">by {{ loop.artist.username }}</i></p>
+                                <small class="text-muted">{{ loop.bpm }} BPM {{ loop.length }} beats</small>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    {% if user.is_authenticated %}
+                                        <a role="button" type="button"
+                                           class="btn btn-sm {% if loop.has_voted %}btn-success{% else %}btn-outline-success{% endif %}"
+                                           href="{% url 'like' loop.id %}">{{ loop.votes }} {% if loop.votes == 1 %}
+                                            like {% else %}likes{% endif %}</a>
+                                    {% else %}
+                                        <small class="text-muted">{{ loop.votes }} {% if loop.votes == 1 %}
+                                            like {% else %}likes{% endif %}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+
+{% endblock %}

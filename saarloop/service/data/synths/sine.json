@@ -1,0 +1,9 @@
+{"oscs":
+ [
+  {"type": "SINE",
+   "vol": 1.0,
+   "phase": 0.0,
+   "fmult": 1.0
+  }
+ ]
+}
