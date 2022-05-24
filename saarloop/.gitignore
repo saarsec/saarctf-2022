@@ -5,6 +5,9 @@
 /docker-container-infos.txt
 **/__pycache__/
 /service/app/migrations/*py
+!/service/app/migrations/__init__.py
 /service/data/loops
 /service/db.sqlite3
 /service/engine/*
+!/service/engine/main.cpp
+!/service/engine/CMakeLists.txt
